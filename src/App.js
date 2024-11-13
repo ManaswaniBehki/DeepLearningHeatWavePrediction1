@@ -1,23 +1,35 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import PredictionForm from './components/predictionform';
 
 function App() {
+  const [prediction, setPrediction] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handlePrediction = (data) => {
+    fetch('/api/predict', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),  // Send the data as a JSON object
+    })
+      .then((response) => response.json())
+      .then((result) => setPrediction(result.prediction))
+      .catch((err) => setError('Error fetching prediction: ' + err.message));
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Heatwave Prediction</h1>
+      <PredictionForm onSubmit={handlePrediction} />
+      {error && <p className="error">{error}</p>}
+      {prediction && (
+        <div>
+          <h2>Prediction Results</h2>
+          <p>{prediction}</p>
+        </div>
+      )}
     </div>
   );
 }
